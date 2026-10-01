@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 족보해커 (Jokbo Hacker) - Neo-Brutalism Edition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap');
+
+        body {
+            background-color: #FAF8F5;
+            color: #000000;
+            font-family: 'Noto Sans KR', 'Plus Jakarta Sans', sans-serif;
+            background-image: radial-gradient(#000000 1.2px, transparent 1.2px);
+            background-size: 20px 20px;
+        }
+
+        .nb-border { border: 3.5px solid #000000; }
+        .nb-border-sm { border: 2.5px solid #000000; }
+        .nb-shadow { box-shadow: 5px 5px 0px #000000; }
+        .nb-shadow-sm { box-shadow: 3px 3px 0px #000000; }
+        .nb-shadow-lg { box-shadow: 8px 8px 0px #000000; }
+        
+        .nb-btn {
+            transition: all 0.1s ease-in-out;
+            cursor: pointer;
+            user-select: none;
+        }
+        .nb-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px #000000;
+        }
+        .nb-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000000;
+        }
+
+        .nb-input {
+            border: 3px solid #000000;
+            outline: none;
+            box-shadow: 3px 3px 0px #000000;
+        }
+        .nb-input:focus {
+            box-shadow: 5px 5px 0px #000000;
+            background-color: #FFFFFF;
+        }
+
+        /* Tab Display Utility */
+        .step-hidden { display: none !important; }
+    </style>
+</head>
+<body class="p-3 md:p-8 max-w-6xl mx-auto min-h-screen flex flex-col justify-between">
+
+    <div>
+        <header class="bg-[#FFE600] p-6 rounded-2xl nb-border nb-shadow mb-6 text-center md:text-left relative overflow-hidden">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-black text-black tracking-tight flex items-center gap-3">
+                        <span>🎓 족보해커</span>
+                        <span class="text-xs md:text-sm bg-black text-[#A3E635] px-3 py-1 rounded-full nb-border-sm">PROMPT & EXAM ENGINE</span>
+                    </h1>
+                    <p class="text-black font-bold text-sm md:text-base mt-2 bg-white inline-block px-3 py-1 rounded-lg nb-border-sm">
+                        선생님 출제 스타일 완벽 스캔 · 지문과 &lt;보기&gt; 중심 적중 모의고사 ⚡
+                    </p>
+                </div>
+                <button onclick="loadSampleTest()" class="nb-btn bg-[#FF6B8B] text-black text-sm md:text-base font-black px-4 py-3 rounded-xl nb-border nb-shadow-sm flex items-center gap-2 shrink-0">
+                    <span>⚡ 1초 샘플 족보 불러오기</span>
+                </button>
+            </div>
+        </header>
+
+        <nav class="flex items-center justify-between bg-black text-white p-3 rounded-xl nb-border nb-shadow mb-8 gap-2 flex-wrap">
+            <div class="flex items-center space-x-2">
+                <span class="text-xs font-black px-2.5 py-1 bg-[#FFE600] text-black rounded nb-border-sm">NAV</span>
+            </div>
+            <div class="flex items-center space-x-2 flex-wrap gap-1.5">
+                <button onclick="goToStep(1)" id="nav-btn-1" class="px-3 py-1.5 rounded-lg text-xs font-black bg-[#A3E635] text-black nb-border-sm">1. 스캔 & 프롬프트</button>
+                <button onclick="goToStep(2)" id="nav-btn-2" class="px-3 py-1.5 rounded-lg text-xs font-black bg-white text-black nb-border-sm">2. 시각화 마인드맵</button>
+                <button onclick="goToStep(3)" id="nav-btn-3" class="px-3 py-1.5 rounded-lg text-xs font-black bg-white text-black nb-border-sm">3. 실시간 모의고사</button>
+                <button onclick="goToStep(4)" id="nav-btn-4" class="px-3 py-1.5 rounded-lg text-xs font-black bg-[#FF6B8B] text-black nb-border-sm">📂 보관함 (<span id="history-count">0</span>)</button>
+            </div>
+        </nav>
+
+        <section id="step-1" class="bg-white p-6 md:p-8 rounded-2xl nb-border nb-shadow mb-8 space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b-4 border-black">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-[#A3E635] text-black font-black px-3 py-1 text-sm rounded-lg nb-border-sm">STEP 1</span>
+                    <h2 class="text-2xl font-black text-black">학습 정보 입력 및 다중 자료 첨부</h2>
+                </div>
+            </div>
+
+            <!-- Teacher & Subject Input -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-extrabold text-black mb-2">👤 담당 선생님 성함</label>
+                    <input type="text" id="teacher-name" value="김족보 선생님" placeholder="예: 김족보 선생님" class="w-full bg-[#FAF8F5] p-3 rounded-xl nb-input text-black font-bold">
+                </div>
+                <div>
+                    <label class="block text-sm font-extrabold text-black mb-2">📚 시험 과목명 & 단원</label>
+                    <input type="text" id="subject-name" value="중2 과학 (3단원 태양계와 지구)" placeholder="예: 중2 과학 (3단원 태양계와 지구)" class="w-full bg-[#FAF8F5] p-3 rounded-xl nb-input text-black font-bold">
+                </div>
+            </div>
+
+            <!-- Teacher Emphasis Area -->
+            <div>
+                <label class="block text-sm font-extrabold text-black mb-2">📌 선생님 수업 중 강조사항 & 출제 포인트</label>
+                <textarea id="teacher-notes" rows="3" placeholder="선생님이 지문에서 변형할 거라 언급하신 내용이나 계산 공식 강조사항을 입력하세요." class="w-full bg-[#FAF8F5] p-3 rounded-xl nb-input text-black font-bold leading-relaxed">지구 크기 측정 식 계산 문제 필수 출제! <보기>에 실생활 관측 데이터를 주고 달의 위상 변화(삭-상현-망-하현) 및 시각별 관측 위치 서술형으로 낼 거라고 몇 번이나 강조하심.</textarea>
+            </div>
+
+            <!-- Multi File Dropzones -->
+            <div>
+                <label class="block text-sm font-extrabold text-black mb-3">📂 스캔할 학습 자료 첨부 (여러 파일 동시 등록)</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <!-- Notes Category -->
+                    <div class="bg-[#FFE600] p-4 rounded-xl nb-border nb-shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-black text-sm text-black">📝 1. 필기 / 프린트</span>
+                                <span class="text-xs bg-black text-white font-bold px-2 py-0.5 rounded">다중선택</span>
+                            </div>
+                            <input type="file" id="file-notes" multiple onchange="handleMultiFileSelect('file-notes', 'list-notes')" class="hidden">
+                            <label for="file-notes" class="nb-btn w-full bg-white text-black font-black text-xs p-2.5 rounded-lg nb-border-sm text-center block mb-2">
+                                + 파일 선택하기
+                            </label>
+                            <ul id="list-notes" class="space-y-1 max-h-32 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Books Category -->
+                    <div class="bg-[#22D3EE] p-4 rounded-xl nb-border nb-shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-black text-sm text-black">📖 2. 교과서 / 자습서</span>
+                                <span class="text-xs bg-black text-white font-bold px-2 py-0.5 rounded">다중선택</span>
+                            </div>
+                            <input type="file" id="file-books" multiple onchange="handleMultiFileSelect('file-books', 'list-books')" class="hidden">
+                            <label for="file-books" class="nb-btn w-full bg-white text-black font-black text-xs p-2.5 rounded-lg nb-border-sm text-center block mb-2">
+                                + 파일 선택하기
+                            </label>
+                            <ul id="list-books" class="space-y-1 max-h-32 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Past Papers Category -->
+                    <div class="bg-[#A3E635] p-4 rounded-xl nb-border nb-shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-black text-sm text-black">🎯 3. 기출문제 / 족보</span>
+                                <span class="text-xs bg-black text-white font-bold px-2 py-0.5 rounded">다중선택</span>
+                            </div>
+                            <input type="file" id="file-past" multiple onchange="handleMultiFileSelect('file-past', 'list-past')" class="hidden">
+                            <label for="file-past" class="nb-btn w-full bg-white text-black font-black text-xs p-2.5 rounded-lg nb-border-sm text-center block mb-2">
+                                + 파일 선택하기
+                            </label>
+                            <ul id="list-past" class="space-y-1 max-h-32 overflow-y-auto"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="pt-4 border-t-4 border-black">
+                <button onclick="generateGeminiPromptCode()" class="nb-btn w-full bg-[#FFE600] text-black font-black text-lg p-4 rounded-xl nb-border nb-shadow flex items-center justify-center gap-2">
+                    <span>⚡ Gemini 전용 스캔 프롬프트 생성하기</span>
+                </button>
+            </div>
+
+            <!-- Prompt Output & Gemini JSON Result Input Box -->
+            <div id="gemini-prompt-section" class="hidden bg-[#FAF8F5] p-6 rounded-xl nb-border nb-shadow-sm space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-black text-lg text-black">🤖 Gemini 전용 프롬프트 (지문 &amp; &lt;보기&gt; 강제 규칙 적용)</h3>
+                    <button onclick="copyPromptToClipboard()" class="nb-btn bg-[#A3E635] text-black font-black text-xs px-3 py-2 rounded-lg nb-border-sm">
+                        📋 분석 코드 복사하기
+                    </button>
+                </div>
+                <p class="text-xs font-bold text-gray-700">이 프롬프트를 복사하여 Gemini(gemini.google.com)에 파일과 함께 전송한 뒤, 출력되는 JSON을 아래 박스에 붙여넣으세요.</p>
+                <textarea id="gemini-prompt-output" readonly rows="7" class="w-full bg-white p-3 rounded-xl nb-input text-xs font-mono text-black font-bold leading-relaxed"></textarea>
+
+                <div class="pt-4 border-t-2 border-black">
+                    <label class="block text-sm font-extrabold text-black mb-2">📥 Gemini 생성 결과 (JSON) 붙여넣기</label>
+                    <textarea id="gemini-result-input" rows="4" placeholder="Gemini 답변 결과 { ... } JSON 텍스트를 이곳에 붙여넣으세요..." class="w-full bg-white p-3 rounded-xl nb-input text-xs font-mono text-black font-bold mb-3"></textarea>
+                    <button onclick="parseAndLoadGeminiResult()" class="nb-btn w-full bg-[#22D3EE] text-black font-black text-base p-3.5 rounded-xl nb-border nb-shadow-sm">
+                        🚀 족보 시각화 마인드맵 &amp; 모의고사 생성하기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="step-2" class="step-hidden bg-white p-6 md:p-8 rounded-2xl nb-border nb-shadow mb-8 space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b-4 border-black">
+                <div>
+                    <span class="bg-[#22D3EE] text-black font-black px-3 py-1 text-sm rounded-lg nb-border-sm mr-2">STEP 2</span>
+                    <h2 class="text-2xl font-black text-black inline-block">핵심 개념 출제 구도 시각화 지도 (마인드맵)</h2>
+                    <p class="text-xs font-bold text-gray-600 mt-1">업로드된 파일 및 과목 핵심 내용을 3단계 인터랙티브 개념 트리 노드로 렌더링합니다.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="zoomMindmap(1.15)" class="nb-btn bg-[#FFE600] text-black font-black px-3 py-1.5 text-xs rounded-lg nb-border-sm">🔍 확대</button>
+                    <button onclick="zoomMindmap(0.85)" class="nb-btn bg-[#FFE600] text-black font-black px-3 py-1.5 text-xs rounded-lg nb-border-sm">🔍 축소</button>
+                    <button onclick="resetMindmapView()" class="nb-btn bg-white text-black font-black px-3 py-1.5 text-xs rounded-lg nb-border-sm">↺ 위치 초기화</button>
+                </div>
+            </div>
+
+            <!-- Subject Metadata Badges -->
+            <div class="flex flex-wrap gap-3 text-xs font-black">
+                <span id="badge-teacher" class="bg-[#FFE600] px-3 py-1.5 rounded-lg nb-border-sm">👤 담당: 김족보 선생님</span>
+                <span id="badge-subject" class="bg-[#A3E635] px-3 py-1.5 rounded-lg nb-border-sm">📚 과목: 과학</span>
+                <span id="badge-time" class="bg-[#FF6B8B] px-3 py-1.5 rounded-lg nb-border-sm">⏱️ 권장 완성 학습시간: 2시간 15분</span>
+            </div>
+
+            <!-- Mind Map Canvas Viewport -->
+            <div id="mindmap-container" class="relative w-full h-[480px] border-4 border-black rounded-xl bg-[#FAF8F5] overflow-hidden shadow-inner">
+                <canvas id="mindmap-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+                
+                <!-- Legend -->
+                <div class="absolute bottom-3 right-3 bg-white border-2 border-black p-2.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-3">
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-[#FFE600] border border-black inline-block"></span> 과목/주제</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-[#22D3EE] border border-black inline-block"></span> 핵심 단원</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-[#A3E635] border border-black inline-block"></span> 선생님 출제 포인트</span>
+                </div>
+            </div>
+
+            <!-- Summary Text Note Box -->
+            <div class="bg-[#FAF8F5] p-6 rounded-xl nb-border nb-shadow-sm space-y-3">
+                <h3 class="text-lg font-black text-black flex items-center gap-2 pb-2 border-b-2 border-black">
+                    <span>📝</span> 담당 선생님 완벽 분석 핵심 요약 노트
+                </h3>
+                <div id="summary-content" class="text-sm font-bold leading-relaxed text-black whitespace-pre-line"></div>
+            </div>
+
+            <!-- Step Navigation Buttons -->
+            <div class="flex justify-between items-center pt-2">
+                <button onclick="goToStep(1)" class="nb-btn bg-white text-black font-black px-4 py-2.5 rounded-xl nb-border-sm">⬅️ 스텝 1로 이동</button>
+                <button onclick="goToStep(3)" class="nb-btn bg-[#A3E635] text-black font-black px-6 py-3 rounded-xl nb-border nb-shadow">🎯 적중 모의고사 풀기 ➔</button>
+            </div>
+        </section>
+
+        <section id="step-3" class="step-hidden bg-white p-6 md:p-8 rounded-2xl nb-border nb-shadow mb-8 space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b-4 border-black">
+                <div>
+                    <span class="bg-[#FF6B8B] text-black font-black px-3 py-1 text-sm rounded-lg nb-border-sm mr-2">STEP 3</span>
+                    <h2 class="text-2xl font-black text-black inline-block">지문 &amp; &lt;보기&gt; 결합 적중 모의고사 (10문항)</h2>
+                    <p class="text-xs font-bold text-gray-600 mt-1">모든 문제에 문제 풀이용 제시문 및 &lt;보기&gt;가 기본 제공됩니다. 실시간으로 정답을 확인하세요.</p>
+                </div>
+                <div id="score-counter" class="bg-[#FFE600] text-black font-black text-sm px-4 py-2 rounded-xl nb-border-sm">
+                    현재 점수: - / 80점 (객관식)
+                </div>
+            </div>
+
+            <!-- Question Cards Container -->
+            <div id="exam-questions" class="space-y-6"></div>
+
+            <!-- Exam Navigation Footer -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t-4 border-black">
+                <button onclick="goToStep(2)" class="nb-btn w-full sm:w-auto bg-white text-black font-black px-4 py-2.5 rounded-xl nb-border-sm">⬅️ 마인드맵 복습하기</button>
+                <button onclick="saveCurrentSessionToStorage()" class="nb-btn w-full sm:w-auto bg-[#22D3EE] text-black font-black px-6 py-3 rounded-xl nb-border nb-shadow">📂 저장된 족보 보관함에 저장하기</button>
+            </div>
+        </section>
+
+        <section id="step-4" class="step-hidden bg-white p-6 md:p-8 rounded-2xl nb-border nb-shadow mb-8 space-y-6">
+            <div class="flex justify-between items-center pb-4 border-b-4 border-black">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-[#FF6B8B] text-black font-black px-3 py-1 text-sm rounded-lg nb-border-sm">STEP 4</span>
+                    <h2 class="text-2xl font-black text-black">이전 저장 족보 보관함</h2>
+                </div>
+                <button onclick="clearAllHistory()" class="nb-btn bg-[#FF6B8B] text-black text-xs font-black px-3 py-1.5 rounded-lg nb-border-sm">전체 삭제</button>
+            </div>
+
+            <div id="history-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+    </div>
+
+    <footer class="text-center text-xs font-bold text-black py-4 border-t-2 border-black mt-8">
+        🎓 족보해커 (Jokbo Hacker) — High-Contrast Neo-Brutalism Studio
+    </footer>
+
+    <script>
+        let currentStep = 1;
+        let uploadedFilesMap = { 'file-notes': [], 'file-books': [], 'file-past': [] };
+        let generatedExamData = null;
+        let scoreState = {};
+
+        // Mind Map View Controls
+        let mindmapData = null;
+        let mindmapScale = 1;
+        let mindmapOffset = { x: 0, y: 0 };
+        let isDraggingMindmap = false;
+        let dragStart = { x: 0, y: 0 };
+
+        function goToStep(step) {
+            currentStep = step;
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}`);
+                const btn = document.getElementById(`nav-btn-${i}`);
+                if (el) el.classList.add('step-hidden');
+                if (btn) {
+                    btn.classList.remove('bg-[#A3E635]', 'bg-[#FFE600]', 'bg-[#22D3EE]', 'bg-[#FF6B8B]');
+                    btn.classList.add('bg-white');
+                }
+            }
+
+            const activeEl = document.getElementById(`step-${step}`);
+            const activeBtn = document.getElementById(`nav-btn-${step}`);
+            if (activeEl) activeEl.classList.remove('step-hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-white');
+                if (step === 1) activeBtn.classList.add('bg-[#A3E635]');
+                if (step === 2) activeBtn.classList.add('bg-[#22D3EE]');
+                if (step === 3) activeBtn.classList.add('bg-[#FFE600]');
+                if (step === 4) activeBtn.classList.add('bg-[#FF6B8B]');
+            }
+
+            if (step === 2) {
+                setTimeout(() => {
+                    initMindmapCanvas();
+                    renderMindmap();
+                }, 80);
+            }
+            if (step === 4) renderHistoryList();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleMultiFileSelect(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const newFiles = Array.from(input.files);
+            uploadedFilesMap[inputId] = uploadedFilesMap[inputId].concat(newFiles);
+            renderFileList(inputId, listId);
+        }
+
+        function removeFile(inputId, listId, index) {
+            uploadedFilesMap[inputId].splice(index, 1);
+            renderFileList(inputId, listId);
+        }
+
+        function renderFileList(inputId, listId) {
+            const list = document.getElementById(listId);
+            list.innerHTML = '';
+            uploadedFilesMap[inputId].forEach((file, idx) => {
+                const li = document.createElement('li');
+                li.className = 'bg-white p-1.5 rounded border border-black flex justify-between items-center text-xs gap-1 font-bold';
+                li.innerHTML = `
+                    <span class="truncate">📄 ${file.name}</span>
+                    <button onclick="removeFile('${inputId}', '${listId}', ${idx})" class="text-red-600 font-black hover:text-black">✕</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function extractAllFilesText() {
+            let resultText = "";
+            const categories = [
+                { id: 'file-notes', name: '선생님 필기/프린트' },
+                { id: 'file-books', name: '교과서/자습서' },
+                { id: 'file-past', name: '기출문제/족보' }
+            ];
+
+            for (let cat of categories) {
+                const files = uploadedFilesMap[cat.id];
+                if (files.length > 0) {
+                    resultText += `\n[카테고리: ${cat.name}]\n`;
+                    for (let f of files) {
+                        resultText += `- 파일명: ${f.name} (${f.size} bytes)\n`;
+                    }
+                }
+            }
+            return resultText;
+        }
+
+        function generateGeminiPromptCode() {
+            const teacher = document.getElementById('teacher-name').value || '김족보 선생님';
+            const subject = document.getElementById('subject-name').value || '중2 과학';
+            const notes = document.getElementById('teacher-notes').value || '';
+            const fileInfo = extractAllFilesText();
+
+            const promptCode = `당신은 대한민국 최고 시험 출제 전문가이자 족보해커 AI입니다.
+전달된 정보 및 첨부파일 목록을 바탕으로, 개념 마인드맵 및 **지문과 <보기> 박스가 반드시 결합된 10문항 모의고사** JSON 데이터를 생성해주세요.
+
+🚨 필수 출제 지침 (VERY IMPORTANT):
+1. 모든 객관식(1~8번) 및 서술형(9~10번) 문제에는 **반드시 상세한 지문, <보기> 박스, 실험 데이터, 시료 목록, 또는 읽기 제시문("passage")**을 포함해야 합니다.
+2. 질문은 "<보기>를 읽고", "(가)와 (나) 지문을 바탕으로", "제시된 자료를 분석하여" 형태로 작성하세요.
+3. 응답은 어떠한 설명 문구나 마크다운 백틱(\`\`\`json) 표기 없이 Pure JSON으로만 반환하세요.
+
+[JSON 반환 형식]
+{
+  "teacher": "${teacher}",
+  "subject": "${subject}",
+  "recommendedTime": "2시간 15분 만점 코스",
+  "mindmap": {
+    "label": "${subject} 핵심 개념",
+    "children": [
+      {
+        "label": "주요 단원 A",
+        "children": [
+          { "label": "출제 포인트 1" },
+          { "label": "출제 포인트 2" }
+        ]
+      },
+      {
+        "label": "주요 단원 B",
+        "children": [
+          { "label": "출제 포인트 3" }
+        ]
+      }
+    ]
+  },
+  "summary": "선생님 강조 출제 요약 노트 내용...",
+  "questions": [
+    {
+      "num": 1,
+      "question": "다음 <보기>의 실험 데이터를 읽고 질문에 답하시오.",
+      "passage": "<보기>\\n(가) 실험 조건 1: ...\\n(나) 관측 결과: ...",
+      "options": ["① 선택지 1", "② 선택지 2", "③ 선택지 3", "④ 선택지 4"],
+      "answerIndex": 0,
+      "explanation": "상세한 해설..."
+    }
+  ]
+}
+
+[입력 정보]
+- 선생님 성함: ${teacher}
+- 시험 과목: ${subject}
+- 선생님 강조사항: ${notes}
+- 스캔 파일 목차:
+${fileInfo || "기본 스캔 완료"}`;
+
+            document.getElementById('gemini-prompt-output').value = promptCode;
+            document.getElementById('gemini-prompt-section').classList.remove('hidden');
+            document.getElementById('gemini-prompt-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyPromptToClipboard() {
+            const promptBox = document.getElementById('gemini-prompt-output');
+            promptBox.select();
+            document.execCommand('copy');
+            alert('📋 Gemini 전용 분석 프롬프트가 클립보드에 복사되었습니다!\nGemini 대화창에 붙여넣어 생성된 JSON을 아래 입력창에 붙여넣어 주세요.');
+        }
+
+        function parseAndLoadGeminiResult() {
+            const inputStr = document.getElementById('gemini-result-input').value.trim();
+            if (!inputStr) {
+                alert('Gemini 답변 JSON 텍스트를 입력해주세요.');
+                return;
+            }
+
+            try {
+                const cleanJson = inputStr.replace(/```json/g, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(cleanJson);
+                parsed.id = "jokbo_" + Date.now();
+                parsed.createdAt = new Date().toLocaleString("ko-KR");
+
+                generatedExamData = parsed;
+                renderStep2And3(parsed);
+                saveSessionToStorageDirectly(parsed);
+                goToStep(2);
+            } catch (err) {
+                alert('JSON 파싱 오류! 올바른 JSON 형식인지 확인해주세요.');
+                console.error(err);
+            }
+        }
+
+        function initMindmapCanvas() {
+            const canvas = document.getElementById('mindmap-canvas');
+            if (!canvas) return;
+
+            const resizeCanvas = () => {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                renderMindmap();
+            };
+
+            window.removeEventListener('resize', resizeCanvas);
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // Drag Events
+            canvas.onmousedown = (e) => {
+                isDraggingMindmap = true;
+                dragStart = { x: e.clientX - mindmapOffset.x, y: e.clientY - mindmapOffset.y };
+            };
+
+            window.onmousemove = (e) => {
+                if (!isDraggingMindmap) return;
+                mindmapOffset.x = e.clientX - dragStart.x;
+                mindmapOffset.y = e.clientY - dragStart.y;
+                renderMindmap();
+            };
+
+            window.onmouseup = () => { isDraggingMindmap = false; };
+
+            // Zoom Wheel Event
+            canvas.onwheel = (e) => {
+                e.preventDefault();
+                const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+                mindmapScale = Math.min(Math.max(0.4, mindmapScale * zoomFactor), 2.5);
+                renderMindmap();
+            };
+        }
+
+        function zoomMindmap(factor) {
+            mindmapScale = Math.min(Math.max(0.4, mindmapScale * factor), 2.5);
+            renderMindmap();
+        }
+
+        function resetMindmapView() {
+            mindmapScale = 1;
+            mindmapOffset = { x: 0, y: 0 };
+            renderMindmap();
+        }
+
+        function renderMindmap() {
+            const canvas = document.getElementById('mindmap-canvas');
+            if (!canvas || !mindmapData) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2 + mindmapOffset.x, canvas.height / 2 + mindmapOffset.y);
+            ctx.scale(mindmapScale, mindmapScale);
+
+            const nodes = [];
+            const links = [];
+
+            // Calculate Tree Nodes
+            const rootNode = { id: 'root', label: mindmapData.label || '핵심 주제', x: 0, y: 0, depth: 0 };
+            nodes.push(rootNode);
+
+            const children = mindmapData.children || [];
+            const angleStep = (Math.PI * 2) / Math.max(children.length, 1);
+
+            children.forEach((child, idx) => {
+                const angle = idx * angleStep;
+                const dist1 = 170;
+                const childNode = {
+                    id: `child-${idx}`,
+                    label: child.label,
+                    x: Math.cos(angle) * dist1,
+                    y: Math.sin(angle) * dist1,
+                    depth: 1
+                };
+                nodes.push(childNode);
+                links.push({ source: rootNode, target: childNode });
+
+                const grandChildren = child.children || [];
+                if (grandChildren.length > 0) {
+                    const subSpread = Math.PI / 3.2;
+                    const subAngleStep = grandChildren.length > 1 ? subSpread / (grandChildren.length - 1) : 0;
+                    const startAngle = angle - subSpread / 2;
+
+                    grandChildren.forEach((gChild, gIdx) => {
+                        const gAngle = grandChildren.length === 1 ? angle : startAngle + gIdx * subAngleStep;
+                        const dist2 = 120;
+                        const gNode = {
+                            id: `gchild-${idx}-${gIdx}`,
+                            label: gChild.label,
+                            x: childNode.x + Math.cos(gAngle) * dist2,
+                            y: childNode.y + Math.sin(gAngle) * dist2,
+                            depth: 2
+                        };
+                        nodes.push(gNode);
+                        links.push({ source: childNode, target: gNode });
+                    });
+                }
+            });
+
+            // Draw Lines
+            ctx.lineWidth = 3.5;
+            ctx.strokeStyle = '#000000';
+            links.forEach(link => {
+                ctx.beginPath();
+                ctx.moveTo(link.source.x, link.source.y);
+                ctx.lineTo(link.target.x, link.target.y);
+                ctx.stroke();
+            });
+
+            // Draw Nodes
+            nodes.forEach(node => {
+                ctx.save();
+                ctx.translate(node.x, node.y);
+
+                let bgColor = '#FFE600'; // Root Node Yellow
+                let fontSize = 14;
+                let padding = 12;
+
+                if (node.depth === 1) {
+                    bgColor = '#22D3EE'; // Level 1 Cyan
+                    fontSize = 12;
+                    padding = 10;
+                } else if (node.depth === 2) {
+                    bgColor = '#A3E635'; // Level 2 Lime
+                    fontSize = 11;
+                    padding = 8;
+                }
+
+                ctx.font = `900 ${fontSize}px 'Noto Sans KR', sans-serif`;
+                const textWidth = ctx.measureText(node.label).width;
+                const rectWidth = textWidth + padding * 2;
+                const rectHeight = fontSize + padding * 1.5;
+
+                // Neo-Brutalism Shadow
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(-rectWidth / 2 + 4, -rectHeight / 2 + 4, rectWidth, rectHeight);
+
+                // Card
+                ctx.fillStyle = bgColor;
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2.5;
+                ctx.fillRect(-rectWidth / 2, -rectHeight / 2, rectWidth, rectHeight);
+                ctx.strokeRect(-rectWidth / 2, -rectHeight / 2, rectWidth, rectHeight);
+
+                // Text
+                ctx.fillStyle = '#000000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.label, 0, 1);
+
+                ctx.restore();
+            });
+
+            ctx.restore();
+        }
+
+        function renderStep2And3(data) {
+            document.getElementById('badge-teacher').innerText = `👤 담당: ${data.teacher}`;
+            document.getElementById('badge-subject').innerText = `📚 과목: ${data.subject}`;
+            document.getElementById('badge-time').innerText = `⏱️ 권장 완성 학습시간: ${data.recommendedTime || '2시간 15분 만점 코스'}`;
+            document.getElementById('summary-content').innerText = data.summary;
+
+            mindmapData = data.mindmap || {
+                label: data.subject,
+                children: [{ label: "주요 출제 요점", children: [{ label: "기본 개념 정리" }] }]
+            };
+
+            setTimeout(() => {
+                initMindmapCanvas();
+                renderMindmap();
+            }, 50);
+
+            // Render Questions
+            const container = document.getElementById('exam-questions');
+            container.innerHTML = '';
+            scoreState = {};
+
+            data.questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-[#FAF8F5] p-5 md:p-6 rounded-xl nb-border nb-shadow-sm space-y-4";
+
+                // Passage Box (Strictly Rendered)
+                let passageHtml = q.passage ? `
+                    <div class="bg-[#FFE600] p-4 rounded-xl nb-border-sm font-bold text-xs md:text-sm text-black leading-relaxed whitespace-pre-wrap shadow-inner">
+                        <div class="text-xs font-black bg-black text-white px-2 py-0.5 rounded inline-block mb-2">📌 &lt;보기&gt; / 제시문</div>
+                        <div>${q.passage}</div>
+                    </div>
+                ` : '';
+
+                if (q.options && q.options.length > 0) {
+                    let optionsHtml = q.options.map((opt, optIdx) => `
+                        <button onclick="gradeQuestion(${idx}, ${optIdx}, ${q.answerIndex})" id="opt-${idx}-${optIdx}" class="opt-btn-${idx} w-full text-left bg-white hover:bg-[#FFE600] text-black font-extrabold text-xs md:text-sm p-3.5 rounded-xl nb-btn flex items-center justify-between border-2 border-black">
+                            <span>${opt}</span>
+                            <span class="indicator text-xs font-black"></span>
+                        </button>
+                    `).join('');
+
+                    card.innerHTML = `
+                        <p class="font-black text-base md:text-lg text-black leading-snug"><span class="bg-black text-white px-2.5 py-0.5 rounded text-sm mr-2">Q${q.num}</span> ${q.question}</p>
+                        ${passageHtml}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 my-3">${optionsHtml}</div>
+                        <div id="feedback-${idx}" class="hidden p-3 rounded-xl nb-border-sm text-sm font-black"></div>
+                        <div id="expl-${idx}" class="hidden text-xs md:text-sm bg-[#22D3EE] text-black p-4 rounded-xl nb-border-sm font-bold leading-relaxed">💡 <b>해설:</b> ${q.explanation}</div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <p class="font-black text-base md:text-lg text-black leading-snug"><span class="bg-[#FF6B8B] text-black px-2.5 py-0.5 rounded text-sm mr-2 nb-border-sm">Q${q.num} 서술형</span> ${q.question}</p>
+                        ${passageHtml}
+                        <textarea placeholder="✏️ 답안 작성 및 풀이 과정을 입력해보세요..." class="w-full bg-white p-3 rounded-xl nb-input text-xs md:text-sm font-bold text-black" rows="3"></textarea>
+                        <details class="text-xs md:text-sm font-black">
+                            <summary class="cursor-pointer bg-[#A3E635] text-black p-2.5 rounded-xl nb-btn inline-block">🔍 모범 답안 및 상세 해설 확인</summary>
+                            <div class="mt-2 bg-white p-3.5 rounded-xl nb-border-sm text-black font-bold leading-relaxed">${q.explanation}</div>
+                        </details>
+                    `;
+                }
+                container.appendChild(card);
+            });
+
+            updateScoreCounter();
+        }
+
+        function gradeQuestion(qIdx, selectedIdx, correctIdx) {
+            const feedbackEl = document.getElementById(`feedback-${qIdx}`);
+            const explEl = document.getElementById(`expl-${qIdx}`);
+            const buttons = document.querySelectorAll(`.opt-btn-${qIdx}`);
+
+            buttons.forEach(btn => {
+                btn.style.backgroundColor = '#FFFFFF';
+                btn.querySelector('.indicator').innerText = '';
+            });
+
+            const selectedBtn = document.getElementById(`opt-${qIdx}-${selectedIdx}`);
+            feedbackEl.classList.remove('hidden', 'bg-[#A3E635]', 'bg-[#FF6B8B]');
+
+            if (selectedIdx === correctIdx) {
+                selectedBtn.style.backgroundColor = '#A3E635';
+                selectedBtn.querySelector('.indicator').innerText = '✅ 정답!';
+                feedbackEl.classList.add('bg-[#A3E635]');
+                feedbackEl.innerText = '🎉 정답입니다! 개념을 정확히 파악했습니다.';
+                scoreState[qIdx] = 10;
+            } else {
+                selectedBtn.style.backgroundColor = '#FF6B8B';
+                selectedBtn.querySelector('.indicator').innerText = '❌ 오답';
+                feedbackEl.classList.add('bg-[#FF6B8B]');
+                feedbackEl.innerText = '❌ 오답입니다. 해설을 읽고 개념을 재점검해보세요!';
+                scoreState[qIdx] = 0;
+            }
+            explEl.classList.remove('hidden');
+            updateScoreCounter();
+        }
+
+        function updateScoreCounter() {
+            const solved = Object.keys(scoreState);
+            const total = Object.values(scoreState).reduce((a, b) => a + b, 0);
+            document.getElementById('score-counter').innerText = solved.length === 0 ? 
+                '현재 점수: - / 80점 (객관식 8문항)' : `현재 점수: ${total} / 80점 (채점 완료: ${solved.length}/8문항)`;
+        }
+
+        function loadSampleTest() {
+            const sampleData = {
+                id: "jokbo_sample",
+                createdAt: new Date().toLocaleString("ko-KR"),
+                teacher: "김족보 선생님",
+                subject: "중2 과학 (3단원 태양계와 지구)",
+                recommendedTime: "2시간 15분 만점 코스",
+                mindmap: {
+                    label: "태양계와 지구",
+                    children: [
+                        {
+                            label: "지구와 달의 측정",
+                            children: [
+                                { label: "에라토스테네스 측정 원리" },
+                                { label: "달의 위상 변화 시각" }
+                            ]
+                        },
+                        {
+                            label: "행성의 분류 기준",
+                            children: [
+                                { label: "지구형 행성 (밀도↑)" },
+                                { label: "목성형 행성 (고리/위성)" }
+                            ]
+                        },
+                        {
+                            label: "태양 대기 현상",
+                            children: [
+                                { label: "흑점과 대류 현상" },
+                                { label: "플레어와 델린저 현상" }
+                            ]
+                        }
+                    ]
+                },
+                summary: "🔥 [김족보 선생님 핵심 출제 강조 노트]\n1. 에라토스테네스의 지구 크기 측정 공식에서 중심각(θ)과 알렉산드리아-시에네 거리를 주는 계산 문제 필수!\n2. <보기> 지문으로 달의 위상 그림을 제시하고 음력 날짜와 관측 시각(저녁 7시 vs 새벽 6시)을 묻는 객관식 및 서술형 출제.",
+                questions: [
+                    {
+                        num: 1,
+                        question: "다음 <보기>의 실험 및 관측 데이터를 바탕으로 에라토스테네스가 측정한 지구 반지름 R을 구하는 공식으로 옳은 것은?",
+                        passage: "<보기>\n- 시에네(A)와 알렉산드리아(B) 사이의 거리: l = 925 km\n- 알렉산드리아에서 측정한 막대와 그림자 끝이 이루는 각도: θ = 7.2°\n- 지구는 완전한 구형이고, 햇빛은 평행하게 들어온다.",
+                        options: [
+                            "① R = (360 × l) / (2π × θ)",
+                            "② R = (2π × θ) / (360 × l)",
+                            "③ R = (360 × θ) / (2π × l)",
+                            "④ R = (2π × l) / (360 × θ)"
+                        ],
+                        answerIndex: 0,
+                        explanation: "호의 길이와 중심각은 비례하므로 2πR : l = 360° : θ 관계식에서 R = (360 × l) / (2π × θ)가 됩니다."
+                    },
+                    {
+                        num: 2,
+                        question: "다음 <보기>의 달 위상 관측 기록을 바탕으로 (가) 시기에 남쪽 하늘에서 관측되는 달의 명칭으로 옳은 것은?",
+                        passage: "<보기>\n관측 날짜: 음력 7~8일경 (가)\n관측 시각: 저녁 7시경\n관측 특징: 오른쪽 반쪽만 밝게 빛나는 반달 형태임.",
+                        options: ["① 초승달", "② 상현달", "③ 보름달(망)", "④ 하현달"],
+                        answerIndex: 1,
+                        explanation: "음력 7~8일경 저녁 무렵 남쪽 하늘에서 오른쪽이 밝은 반달 형태로 관측되는 것은 상현달입니다."
+                    },
+                    {
+                        num: 3,
+                        question: "다음 <보기>의 탐구 과정에서 전제되어야 할 학술적 가정 두 가지를 바르게 짝지은 것은?",
+                        passage: "<보기>\n(가) 지구는 완전한 구형이다.\n(나) 지구의 자전축은 23.5도 기울어져 있다.\n(다) 지구로 들어오는 햇빛은 어디서나 평행하다.\n(라) 달은 지구 주위를 공전한다.",
+                        options: ["① (가), (나)", "② (가), (다)", "③ (나), (다)", "④ (다), (라)"],
+                        answerIndex: 1,
+                        explanation: "에라토스테네스의 지구 크기 측정에는 지구가 완전한 구형이라는 점과 햇빛이 평행하게 입사한다는 가정이 필요합니다."
+                    },
+                    {
+                        num: 4,
+                        question: "다음 <보기>의 태양 표면 및 대기 관측 특성을 가진 현상 A의 명칭으로 옳은 것은?",
+                        passage: "<보기>\n- 주변보다 온도가 약 1500℃ 낮아 어둡게 보임.\n- 강한 자기장에 의해 대류가 방해받아 형성됨.\n- 이 현상의 수가 많아질수록 태양 활동이 활발한 시기임.",
+                        options: ["① 쌀알 무늬", "② 흑점", "③ 채층", "④ 코로나"],
+                        answerIndex: 1,
+                        explanation: "주변보다 온도가 낮아 어둡게 보이는 현상은 흑점입니다."
+                    },
+                    {
+                        num: 5,
+                        question: "다음 <보기>의 행성 분류표에서 (가) 집단에 속하는 행성으로만 짝지어진 것은?",
+                        passage: "<보기>\n[분류 집단 (가)]\n- 평균 밀도가 높다 (암석 성분).\n- 반지름이 비교적 작고 고리가 없다.\n- 위성 수가 적거나 없다.",
+                        options: ["① 수성, 금성, 지구, 화성", "② 목성, 토성, 천왕성, 해왕성", "③ 금성, 목성, 토성, 화성", "④ 수성, 지구, 목성, 천왕성"],
+                        answerIndex: 0,
+                        explanation: "밀도가 높고 암석 성분인 지구형 행성은 수성, 금성, 지구, 화성입니다."
+                    },
+                    {
+                        num: 6,
+                        question: "다음 <보기>의 지구 상공 및 대기 이상 현상을 유발하는 태양 활동 폭발 현상은?",
+                        passage: "<보기>\n흑점 군처에서 짧은 시간 동안 강력한 폭발이 일어나 에너지가 방출됨.\n이로 인해 무선 통신이 마비되는 '델린저 현상'이 발생함.",
+                        options: ["① 홍염", "② 플레어", "③ 코로나", "④ 쌀알 무늬"],
+                        answerIndex: 1,
+                        explanation: "흑점 근처 폭발로 무선 통신 장애를 일으키는 현상은 플레어입니다."
+                    },
+                    {
+                        num: 7,
+                        question: "다음 <보기>의 천체 관측 사진에 대한 설명으로 옳지 않은 것은?",
+                        passage: "<보기>\n[달 표면 관측 특성]\n달의 표면에는 운석 구덩이(크레이터)가 매우 빽빽하게 보존되어 있으며, 어두운 부분인 '달의 바다'와 밝은 '달의 고지'가 구별된다.",
+                        options: [
+                            "① 달에는 대기가 없어 풍화 작용이 거의 일어나지 않는다.",
+                            "② 물이 없으므로 침식 작용이 일어나지 않는다.",
+                            "③ 달의 바다는 현무암질 암석으로 이루어져 어둡게 보인다.",
+                            "④ 달의 강력한 화산 활동으로 인해 운석 구덩이가 사라지고 있다."
+                        ],
+                        answerIndex: 3,
+                        explanation: "달은 대기와 물이 없어 운석 구덩이가 거의 풍화/침식되지 않고 보존됩니다."
+                    },
+                    {
+                        num: 8,
+                        question: "다음 <보기>의 개기 일식 상황에서 관측할 수 있는 태양의 대기층 A와 B는?",
+                        passage: "<보기>\nA: 광구 바로 위를 둘러싼 얇은 진홍색의 대기층\nB: 채층 위로 멀리 뻗어 있는 청백색의 희미한 고온 대기층",
+                        options: [
+                            "① A: 채층, B: 코로나",
+                            "② A: 코로나, B: 채층",
+                            "③ A: 흑점, B: 쌀알 무늬",
+                            "④ A: 홍염, B: 광구"
+                        ],
+                        answerIndex: 0,
+                        explanation: "진홍색 대기층은 채층, 그 위로 넓게 퍼진 대기층은 코로나입니다."
+                    },
+                    {
+                        num: 9,
+                        question: "[서술형 1번] 다음 <보기>의 상황을 읽고, 지구에서 달의 한쪽 면만 보게 되는 과학적 원리를 서술하시오.",
+                        passage: "<보기>\n지구에서 달을 관측하면 언제나 토끼 모양의 표면만 보이고 반대쪽 뒷면은 직접 관측할 수 없다.",
+                        options: null,
+                        answerIndex: null,
+                        explanation: "모범 답안: 달의 자전 주기와 공전 주기가 약 27.3일로 서로 완전히 같기 때문입니다."
+                    },
+                    {
+                        num: 10,
+                        question: "[서술형 2번] 다음 <보기>의 비례식을 이용하여 지구 반지름 R을 구하는 최종 공식을 도출하시오.",
+                        passage: "<보기>\n비례식: 2πR : l = 360° : θ\n(단, l은 두 지점 사이 거리, θ는 중심각)",
+                        options: null,
+                        answerIndex: null,
+                        explanation: "모범 답안: 비례식의 내항의 곱과 외항의 곱을 구하면 2πR × θ = 360° × l 이 되므로, R = (360 × l) / (2π × θ) 가 됩니다."
+                    }
+                ]
+            };
+
+            generatedExamData = sampleData;
+            renderStep2And3(sampleData);
+            saveSessionToStorageDirectly(sampleData);
+            goToStep(2);
+        }
+
+        function getHistoryList() {
+            try {
+                const stored = localStorage.getItem('jokbo_hacker_history');
+                return stored ? JSON.parse(stored) : [];
+            } catch(e) { return []; }
+        }
+
+        function saveSessionToStorageDirectly(sessionData) {
+            if (!sessionData) return;
+            let list = getHistoryList().filter(item => item.id !== sessionData.id);
+            list.unshift(sessionData);
+            try {
+                localStorage.setItem('jokbo_hacker_history', JSON.stringify(list));
+                updateHistoryCountBadge();
+            } catch(e) {}
+        }
+
+        function saveCurrentSessionToStorage() {
+            if (!generatedExamData) return alert('저장할 족보 데이터가 없습니다.');
+            saveSessionToStorageDirectly(generatedExamData);
+            alert('✅ 저장된 족보 보관함(STEP 4)에 안전하게 저장되었습니다!');
+        }
+
+        function updateHistoryCountBadge() {
+            const list = getHistoryList();
+            document.getElementById('history-count').innerText = list.length;
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('history-list-container');
+            const list = getHistoryList();
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="col-span-full bg-[#FAF8F5] p-8 rounded-xl nb-border text-center font-black text-gray-700">📭 저장된 족보 기록이 없습니다.</div>`;
+                return;
+            }
+
+            list.forEach((data) => {
+                const card = document.createElement('div');
+                card.className = "bg-[#FAF8F5] p-5 rounded-xl nb-border nb-shadow-sm flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="bg-[#FFE600] text-black font-black text-xs px-2.5 py-1 rounded-lg nb-border-sm">📚 ${data.subject}</span>
+                            <span class="text-[11px] font-bold text-gray-600">${data.createdAt || ''}</span>
+                        </div>
+                        <h4 class="font-black text-lg text-black mt-2">${data.teacher} 족보</h4>
+                    </div>
+                    <div class="flex space-x-2 mt-5">
+                        <button onclick="loadHistoryItem('${data.id}')" class="flex-1 bg-[#A3E635] text-black text-xs font-black py-2.5 rounded-xl nb-btn">📖 불러오기</button>
+                        <button onclick="deleteHistoryItem('${data.id}')" class="bg-[#FF6B8B] text-black text-xs font-black px-3 py-2.5 rounded-xl nb-btn">🗑️</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function loadHistoryItem(id) {
+            const target = getHistoryList().find(item => item.id === id);
+            if (target) {
+                generatedExamData = target;
+                renderStep2And3(target);
+                goToStep(2);
+            }
+        }
+
+        function deleteHistoryItem(id) {
+            if (!confirm('해당 기록을 삭제하시겠습니까?')) return;
+            let list = getHistoryList().filter(item => item.id !== id);
+            localStorage.setItem('jokbo_hacker_history', JSON.stringify(list));
+            updateHistoryCountBadge();
+            renderHistoryList();
+        }
+
+        function clearAllHistory() {
+            if (!confirm('전체 보관함 기록을 삭제하시겠습니까?')) return;
+            localStorage.removeItem('jokbo_hacker_history');
+            updateHistoryCountBadge();
+            renderHistoryList();
+        }
+
+        // DOM Loaded Handler
+        window.addEventListener('DOMContentLoaded', () => {
+            updateHistoryCountBadge();
+        });
+    </script>
+</body>
+</html>
